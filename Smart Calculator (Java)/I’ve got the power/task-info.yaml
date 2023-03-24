@@ -1,0 +1,763 @@
+type: edu
+files:
+- name: src/calculator/Main.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.Scanner;
+
+    public class Main {
+
+        public static void main(String[] args) {
+            Scanner scanner = new Scanner(System.in);
+            // put your code here
+        }
+    }
+  learner_created: false
+- name: test/Test.java
+  visible: false
+  text: |
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.CheckResult;
+    import org.hyperskill.hstest.testcase.TestCase;
+    import org.hyperskill.hstest.testing.TestedProgram;
+
+    import java.util.Arrays;
+    import java.util.List;
+
+    public class Test extends StageTest<String> {
+        @Override
+        public List<TestCase<String>> generate() {
+            return Arrays.asList(
+                    new TestCase<String>().setDynamicTesting(() -> {
+                        TestedProgram main = new TestedProgram();
+
+                        // tests of functionality of previous steps
+                        main.start();
+
+                        // test of /help
+                        String output = main.execute("/help").trim();
+                        if (output.length() < 4) {
+                            return CheckResult.wrong("It seems like there was no any \"help\" message.");
+                        }
+
+                        // input empty string
+                        output = main.execute("");
+                        if (output.length() != 0) {
+                            return CheckResult.wrong("Incorrect response to an empty string. " +
+                                    "The program should not print anything.");
+                        }
+
+                        // testing basic assignment
+                        output = main.execute("n = -32");
+                        if (output.length() != 0) {
+                            return CheckResult.wrong("Unexpected reaction after assignment." +
+                                    "The program should not print anything in this case.");
+                        }
+
+                        // testing a big amount of numbers
+                        output = main.execute("33 + 20 + 11 + 49 - 32 - 9 + 1 - 80 + 4").trim();
+                        if (!output.equals("-3")) {
+                            return CheckResult.wrong("The program cannot process addition and subtraction operations correctly.");
+                        }
+
+                        // the same with a variable
+                        output = main.execute("33 + 20 + 11 + 49 + n - 9 + 1 - 80 + 4").trim();
+                        if (!output.equals("-3")) {
+                            return CheckResult.wrong("The program cannot process addition and subtraction operations correctly.");
+                        }
+
+
+                        output = main.execute("c = n \nc = -2");
+                        if (output.length() != 0) {
+                            return CheckResult.wrong("Unexpected reaction after assignment." +
+                                    "The program should not print anything in this case.");
+                        }
+
+                        // check value
+                        output = main.execute("  c   ").trim();
+                        if (!output.equals("-2")) {
+                            return CheckResult.wrong("The variable stores not a correct value." +
+                                    "May be the program could not assign the value of one variable to another one.");
+                        }
+
+                        // the sum of the numbers is zero
+                        output = main.execute("11 - 9 + c").trim();
+                        if (!output.equals("0")) {
+                            return CheckResult.wrong("The problem when sum is equal to 0 has occurred.");
+                        }
+
+                        // test of multiple operations
+                        output = main.execute("5 --- 2 ++++++ 4 -- 2 ---- 1").trim();
+                        if (!output.equals("10")) {
+                            return CheckResult.wrong("The program cannot process multiple operations with several operators.");
+                        }
+
+                        // test of a nonexistent command
+                        output = main.execute("/start").trim().toLowerCase();
+                        if (!output.startsWith("unknown")) {
+                            return CheckResult.wrong("The program should print \"Unknown command\" " +
+                                    "when a nonexistent command is entered.");
+                        }
+
+                        // testing invalid variable name
+                        output = main.execute("var1 = 1").trim().toLowerCase();
+                        if (!output.startsWith("invalid")) {
+                            return CheckResult.wrong("The name of variable should contain only Latin letters.");
+                        }
+
+                        // testing invalid value
+                        output = main.execute("var = 2a").trim().toLowerCase();
+                        if (!output.startsWith("invalid")) {
+                            return CheckResult.wrong("The value can be an integer number or a value of another variable");
+                        }
+
+                        // testing multiple equalization
+                        output = main.execute("c = 7 - 1 = 5").trim().toLowerCase();
+                        if (!output.startsWith("invalid")) {
+                            return CheckResult.wrong("The program could not handle a invalid assignment.");
+                        }
+
+                        // testing assignment by unassigned variable
+                        output = main.execute("variable = f").trim().toLowerCase();
+                        if (!(output.startsWith("unknown") || output.startsWith("invalid"))) {
+                            return CheckResult.wrong("The program should not allow an assignment by unassigned variable.");
+                        }
+
+                        // checking case sensitivity
+                        main.execute("variable = 777");
+                        output = main.execute("Variable").trim().toLowerCase();
+                        if (!output.startsWith("unknown") && !output.startsWith("invalid")) {
+                            return CheckResult.wrong("The program should be case sensitive.");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    }),
+                    new TestCase<String>().setDynamicTesting(() -> {
+                        TestedProgram main = new TestedProgram();
+
+                        // A test suit for multiplication and division
+                        main.start();
+
+                        String output = main.execute("4 * 3").trim();
+                        if (!output.equals("12")) {
+                            return CheckResult.wrong("The program has problems with multiplication operation.");
+                        }
+
+                        output = main.execute("91 / 13").trim();
+                        if (!output.equals("7")) {
+                            return CheckResult.wrong("The program has problems with division operation.");
+                        }
+
+                        // testing all operators
+                        main.execute(" a= 7 \n b =2");
+                        output = main.execute("a * 4 / b - (3 - 1)").trim();
+                        if (!output.equals("12")) {
+                            return CheckResult.wrong("The program cannot correctly process several operations.");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    }),
+                    new TestCase<String>().setDynamicTesting(() -> {
+                        TestedProgram main = new TestedProgram();
+
+                        // testing priority of parentheses
+                        main.start();
+
+                        // expression from the example
+                        String output = main.execute("7 + 3 * ((4 + 3) * 7 + 1) - 6 / (2 + 1)").trim();
+                        if (!output.equals("155")) {
+                            return CheckResult.wrong("The program cannot reproduce an example from the task.");
+                        }
+
+    //                    // test with a big amount of brackets
+    //                    output = main.execute("3 + (9 + ( 68 * 3 / 9)) * ((7 - 2 * 5) / 2) * 6").trim();
+    //                    if (!output.equals("-282")) {
+    //                        return CheckResult.wrong("Program incorrectly solves expressions with multi-level parentheses");
+    //                    }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    }),
+                    new TestCase<String>().setDynamicTesting(() -> {
+                        TestedProgram main = new TestedProgram();
+
+                        // a set of negative tests
+                        main.start();
+
+                        // tests with unclosed brackets
+                        String output = main.execute("8 * (2 + 3").trim().toLowerCase();
+                        String output1 = main.execute("4 + 5)").trim().toLowerCase();
+                        if (!output.startsWith("invalid") || !output1.startsWith("invalid")) {
+                            return CheckResult.wrong("The program could not handle an invalid expression.");
+                        }
+
+                        // sequence of * test
+                        output = main.execute("2 ************ 2").trim().toLowerCase();
+                        if (!output.startsWith("invalid")) {
+                            return CheckResult.wrong("A sequence of \"*\" should return \"Invalid expression\".");
+                        }
+
+                        // sequence of / test
+                        output = main.execute("2 // 2").trim().toLowerCase();
+                        if (!output.startsWith("invalid")) {
+                            return CheckResult.wrong("A sequence of \"/\" should return \"Invalid expression\".");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    })
+            );
+        }
+    }
+  learner_created: false
+- name: src/calculator/Validator.java
+  visible: true
+  text: |
+    package calculator;
+
+    public interface Validator {
+        //    String ASSIGNMENT_REGEX = "([a-zA-Z]+)\\s*=\\s*([a-zA-Z]*)(\\d*)";
+        String VARIABLE_REGEX = "^[a-zA-Z]+$";
+    //    String CALCULATION_REGEX = "([a-zA-Z]*)(\\d*)\\s*([+\\-*/])\\s*([a-zA-Z]*)(\\d*)";
+
+        String INVALID_CALCULATION_REGEX = "^[a-zA-Z0-9\\s+\\-*/]+$";
+        String MULTI_ASSIGNMENT_OPERATORS_REGEX = ".*=.*=.*";
+
+        String INVALID_ASSIGNMENT_CHARS_REGEX = "^[a-zA-Z0-9\\s+\\-*/]+$";
+
+        String NUMBER_REGEX = "\\d+";
+
+        boolean validate(String input);
+    }
+  learner_created: true
+- name: src/calculator/ExpressionFactory.java
+  visible: true
+  text: |
+    package calculator;
+
+    public class ExpressionFactory {
+
+        public static final String BAD_VARIABLE_REGEX = "^[a-zA-Z\\d]+$";
+        public static final String ASSIGNMENT_OPERATOR = "=";
+
+        private ExpressionFactory() {
+        }
+
+        /**
+         * Gets expression.
+         *
+         * @param input the input
+         * @return the expression
+         */
+        public static Expression getExpression(String input) {
+            if (input.contains(ASSIGNMENT_OPERATOR)) {
+                return new Assignment().withInput(input).withType(Expression.Type.ASSIGNMENT);
+            } else if (input.matches(BAD_VARIABLE_REGEX)) { //We intentionally include invalid identifiers here, to validate later.
+                return new Variable().withInput(input).withType(Expression.Type.VARIABLE);
+            } else {
+                return new Calculation().withInput(input).withType(Expression.Type.CALCULATION);
+            }
+        }
+    }
+  learner_created: true
+- name: src/calculator/Calculator.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.ArrayDeque;
+    import java.util.Deque;
+    import java.util.regex.Matcher;
+    import java.util.regex.Pattern;
+
+    public class Calculator {
+
+        public static final String NUMBERS_AND_VARIABLE_REGEX = "^[a-zA-Z\\d]+$";
+        public static final String OPERATORS_REGEX = "\\s+[+-]+\\s+";
+
+        public static Deque<String> buildOperandStack(String input) {
+            Deque<String> numbers = new ArrayDeque<>();
+            //extract all variables and numbers from input
+            //and add them to the number stack
+            //split the input on the operators and extract the numbers
+            //and variables
+            String[] inputArray = input.split("\\s+");
+            for (String s : inputArray) {
+                if (s.matches(NUMBERS_AND_VARIABLE_REGEX)) {
+                    if(Expression.hasVariable(s)) {
+                        numbers.add(Expression.getVariablesMap().get(s));
+                    } else {
+                        numbers.add(s);
+                    }
+                }
+            }
+            if (Main.DEBUG) {
+                System.out.println(numbers);
+            }
+            return numbers;
+        }
+
+        public static Deque<String> buildOperatorStack(String input) {
+            Deque<String> operators = new ArrayDeque<>();
+            //extract all operators from input that have whitespace around it
+            Pattern pattern = Pattern.compile(OPERATORS_REGEX);
+            Matcher matcher = pattern.matcher(input);
+
+            while (matcher.find()) {
+                String operator = matcher.group().trim();
+                //if the operator is "-" and there is an even number of operators in the list
+                //change it to a single "+"
+                if (operator.startsWith("-") && operator.length() % 2 == 0) {
+                    operator = "+";
+                }
+                //if the operator is "-" and there is an odd number of operators in the list
+                //change it to a single "-"
+                if (operator.startsWith("-") && operator.length() % 2 != 0) {
+                    operator = "-";
+                }
+                //Collapse multiple + operators to a single +
+                if (operator.startsWith("+") && operator.length() > 1) {
+                    operator = "+";
+                }
+
+                operators.add(operator);
+            }
+            if (Main.DEBUG) {
+                System.out.println(operators);
+            }
+            return operators;
+        }
+
+        public static boolean canCalculate(String input, Deque<String> numbers, Deque<String> operators) {
+            //If input contains no digits
+            if (numbers.isEmpty()) {
+                return false;
+            }
+            //If input contains more than one number but no operators
+            if (numbers.size() > 1 && operators.isEmpty()) {
+                return false;
+            }
+            //Match any numbers with postfix + or - operators
+            Pattern pattern = Pattern.compile("\\d+[+-]");
+            Matcher matcher = pattern.matcher(input);
+            return !matcher.find();
+        }
+
+        public static String calculate(Deque<String> numbers, Deque<String> operators) {
+            //pop first two operands from numbers and first operator from operators
+            //perform operations and push a result back to numbers
+            //repeat until operators are empty
+            String result = "";
+            while (!operators.isEmpty()) {
+                int operand1 = Integer.parseInt(numbers.pop());
+                int operand2 = Integer.parseInt(numbers.pop());
+                String operator = operators.pop();
+                if (Main.DEBUG) {
+                    System.out.println("operand1: " + operand1);
+                    System.out.println("operand2: " + operand2);
+                    System.out.println("operator: " + operator);
+                }
+                switch (operator) {
+                    case "+" -> result = String.valueOf(operand1 + operand2);
+                    case "-" -> result = String.valueOf(operand1 - operand2);
+                    case "*" -> result = String.valueOf(operand1 * operand2);
+                    case "/" -> result = String.valueOf(operand1 / operand2);
+                    default -> {
+                        System.out.println("Invalid operator");
+                        return "0";
+                    }
+                }
+                numbers.push(result);
+            }
+            if (Main.DEBUG) {
+                System.out.println(numbers);
+            }
+            //pop the last number from numbers and print it
+    //        System.out.println(numbers.pop());
+            result = numbers.pop();
+
+            return result;
+        }
+    }
+  learner_created: true
+- name: src/calculator/PrintHelper.java
+  visible: true
+  text: |
+    package calculator;
+
+    public class PrintHelper {
+        private PrintHelper() {
+        }
+
+        public static void printHelp(String input) {
+            if (input.equals("/help")) {
+                System.out.println("1. The program supports both unary and binary minus operators.");
+                System.out.println("2. The program supports addition and subtraction operations.");
+                System.out.println("3. The program supports multiple adjacent operators of the same type.");
+                System.out.println("4. For an even number of minus adjacent operators it behaves as a plus.");
+                System.out.println("5. Now the calculator supports variables. A variable is a string of Latin letters.");
+            }
+        }
+
+        public static void printUnknownCommand() {
+            System.out.println("Unknown command");
+        }
+
+        public static void printUnknownVariable() {
+            System.out.println("Unknown variable");
+        }
+
+        public static void printInvalidIdentifier() {
+            System.out.println("Invalid identifier");
+        }
+
+        public static void printInvalidAssignment() {
+            System.out.println("Invalid assignment");
+        }
+
+
+        public static void printExitMessage() {
+            System.out.println("Bye!");
+        }
+
+
+        public static void printVariableValue(String input) {
+            System.out.println(input.strip());
+        }
+
+        public static void printInvalidExpression() {
+            System.out.println("Invalid expression");
+        }
+
+        public static void printResult(String result) {
+            System.out.println(result);
+        }
+    }
+  learner_created: true
+- name: src/calculator/Expression.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.HashMap;
+    import java.util.Map;
+
+    public abstract class Expression {
+        //Make this class a singleton
+
+        public enum Type {ASSIGNMENT, VARIABLE, CALCULATION}
+        private String input;
+
+        private Type type;
+
+        private static Map<String, String> variablesMap = new HashMap<>();
+
+        public Expression withInput(String input) {
+            this.input = input;
+            return this;
+        }
+
+        public Type getType() {
+            return type;
+        }
+
+        public Expression withType(Type expression) {
+            this.type = expression;
+            return this;
+        }
+
+        public void addVariable() {
+            throw new UnsupportedOperationException();
+        }
+
+        public static boolean hasVariable(String varName) {
+            return variablesMap.containsKey(varName);
+        }
+
+        public static Map<String, String> getVariablesMap() {
+            return variablesMap;
+        }
+
+        public String getVariableValue(String varName) {
+            return variablesMap.get(varName);
+        }
+
+    }
+  learner_created: true
+- name: src/calculator/Calculation.java
+  visible: true
+  text: |
+    package calculator;
+
+    public class Calculation extends Expression{
+        @Override
+        public void addVariable() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+    }
+  learner_created: true
+- name: src/calculator/CommandValidator.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.List;
+
+    public class CommandValidator implements Validator {
+        //Make this class a singleton
+        private static CommandValidator instance;
+
+        private String input;
+        private final List<String> validCommands = List.of("/help",
+                "/exit");
+
+        private CommandValidator() {
+
+        }
+
+        public static CommandValidator getInstance() {
+            if (instance == null) {
+                instance = new CommandValidator();
+            }
+            return instance;
+        }
+
+        private boolean isValid() {
+            //If the input is a command type but an invalid command,
+            // print "Unknown command" and continue
+            return !input.startsWith("/") || validCommands.contains(input);
+        }
+
+        @Override
+        public boolean validate(String input) {
+            this.input = input;
+            return isValid();
+        }
+    }
+  learner_created: true
+- name: src/calculator/Variable.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.HashMap;
+    import java.util.Map;
+    import java.util.Objects;
+
+    public class Variable extends Expression {
+
+        @Override
+        public void addVariable() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+    }
+  learner_created: true
+- name: src/calculator/CalculationInputValidator.java
+  visible: true
+  text: |
+    package calculator;
+
+    public class CalculationInputValidator implements Validator {
+        //make this a singleton
+        private static CalculationInputValidator instance;
+
+        private CalculationInputValidator() {
+
+        }
+
+        public static CalculationInputValidator getInstance() {
+            if (instance == null) {
+                instance = new CalculationInputValidator();
+            }
+            return instance;
+        }
+
+        @Override
+        public boolean validate(String input) {
+            //Check if the input contains any invalid characters,
+            //i.e. not numbers, latin alphabets, spaces, operators
+            if (!input.matches(INVALID_CALCULATION_REGEX)) {
+                PrintHelper.printInvalidExpression();
+                return false;
+            }
+            //Check if there are any invalid variables in the input
+            if (input.matches(".*[a-zA-Z]+.*")) {
+                String[] inputArray = input.split("\\s+");
+                for (String s : inputArray) {
+                    if (!s.matches(VARIABLE_REGEX) && !s.matches(NUMBER_REGEX) && !s.matches("\\s*[+-]+\\s*")) {
+                        PrintHelper.printInvalidExpression();
+                        return false;
+                    }
+                    else if(s.matches(VARIABLE_REGEX) && !Expression.hasVariable(s)) {
+                        PrintHelper.printUnknownVariable();
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+  learner_created: true
+- name: src/calculator/AssignmentValidator.java
+  visible: true
+  text: |
+    package calculator;
+
+    public class AssignmentValidator implements Validator {
+
+
+
+        //Make this a singleton
+        private static AssignmentValidator instance;
+
+        private AssignmentValidator() {
+
+        }
+
+        public static AssignmentValidator getInstance() {
+            if (instance == null) {
+                instance = new AssignmentValidator();
+            }
+            return instance;
+        }
+
+        public boolean validate(String input) {
+            //Regex to match more than one "=" operators in input
+            if (input.matches(MULTI_ASSIGNMENT_OPERATORS_REGEX)) {
+                PrintHelper.printInvalidAssignment();
+                return false;
+            }
+            //Check for illegal characters in the variable identifier on the left side of the assignment
+            if (!input.split("=")[0].strip().matches(VARIABLE_REGEX)) {
+                PrintHelper.printInvalidIdentifier();
+                return false;
+            }
+            //Check if the right-hand side of the assignment contains any characters other that latin alphabets,
+            // numbers, spaces and operators
+            if (!input.split("=")[1].strip().matches(INVALID_ASSIGNMENT_CHARS_REGEX)) {
+                PrintHelper.printInvalidAssignment();
+                return false;
+            }
+            //Check if the right-hand side of the assignment contains any invalid variables
+            if (input.split("=")[1].strip().matches(".*[a-zA-Z]+.*")) {
+                String[] rightHandSide = input.split("=")[1].strip().split("\\s+");
+                for (String s : rightHandSide) {
+                    if (!s.matches(VARIABLE_REGEX)) {
+                        PrintHelper.printInvalidAssignment();
+                        return false;
+                    }
+                    else if(s.matches(VARIABLE_REGEX) && !Expression.hasVariable(s)) {
+                        PrintHelper.printUnknownVariable();
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+  learner_created: true
+- name: src/calculator/VariableValidator.java
+  visible: true
+  text: |
+    package calculator;
+
+    public class VariableValidator implements Validator {
+
+        //Make this a singleton
+        private static VariableValidator instance;
+
+        private VariableValidator() {
+
+        }
+
+        public static VariableValidator getInstance() {
+            if (instance == null) {
+                instance = new VariableValidator();
+            }
+            return instance;
+        }
+
+        public boolean validate(String variable) {
+            return variable.matches(VARIABLE_REGEX);
+        }
+
+    }
+  learner_created: true
+- name: src/calculator/Assignment.java
+  visible: true
+  text: |
+    package calculator;
+
+    public class Assignment extends Expression {
+
+        private String input;
+
+        private String left;
+
+        private String right;
+
+        public Assignment withInput(String input) {
+            this.input = input;
+            return this;
+        }
+
+        @Override
+        public void addVariable() {
+            if(AssignmentValidator.getInstance().validate(this.input)) {
+                this.left = this.input.split("=")[0].strip();
+                var rhs = this.input.split("=")[1].strip();
+                if(hasVariable(rhs)) {
+                    this.right = getVariableValue(rhs);
+                } else {
+                    this.right = rhs;
+                }
+                getVariablesMap().put(this.left, this.right);
+            }
+        }
+
+
+    }
+  learner_created: true
+- name: src/calculator/Operator.java
+  visible: true
+  learner_created: true
+- name: src/calculator/Validator.java.bak
+  visible: true
+  learner_created: true
+- name: src/calculator/Calculation.java.bak
+  visible: true
+  learner_created: true
+- name: src/calculator/Expression.java.bak
+  visible: true
+  learner_created: true
+feedback_link: https://hyperskill.org/learn/step/5322#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: "Thu, 23 Mar 2023 21:01:12 UTC"
+record: 7

@@ -1,0 +1,23 @@
+# Project exclude paths
+/.gradle/
+/Smart Calculator (Java)/task/build/
+/Smart Calculator (Java)/task/out/
+/Smart Calculator (Java)/task/out/production/classes/
+/Topics/Patterns and Matcher/Find a word with a given length/out/
+/Topics/Patterns and Matcher/Find a word with a given length/out/production/classes/
+/Topics/Patterns and Matcher/In the middle of a word/out/
+/Topics/Patterns and Matcher/In the middle of a word/out/production/classes/
+/Topics/Patterns and Matcher/Start or end of a word/out/
+/Topics/Patterns and Matcher/Start or end of a word/out/production/classes/
+/Topics/Patterns and Matcher/Theory/out/
+/Topics/Patterns and Matcher/Theory/out/production/classes/
+/Topics/Regexes in programs/Check the date/out/
+/Topics/Regexes in programs/Check the date/out/production/classes/
+/Topics/Regexes in programs/Safe password/out/
+/Topics/Regexes in programs/Safe password/out/production/classes/
+/Topics/Regexes in programs/Theory/out/
+/Topics/Regexes in programs/Theory/out/production/classes/
+/Topics/Replacing characters/Remove extra spaces/out/
+/Topics/Replacing characters/Remove extra spaces/out/production/classes/
+/Topics/Replacing characters/Remove HTML tags/out/
+/Topics/Replacing characters/Remove HTML tags/out/production/classes/
